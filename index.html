@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Japandi Pomodoro Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: transparent;
+    }
+    .bg-japandi {
+      background-color: #D7CCC4;
+    }
+    .text-japandi {
+      color: #7A5447;
+    }
+    .mode-btn[data-active="true"] {
+      background-color: #7A5447 !important;
+      color: #fff !important;
+      border-color: #7A5447 !important;
+    }
+    .mode-btn {
+      background-color: #D7CCC4;
+      color: #7A5447;
+      border: 2px solid #7A5447;
+      transition: background 0.2s, color 0.2s;
+    }
+    #timer {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 4.5rem;
+    }
+    .progress-bar {
+      height: 6px;
+      width: 100%;
+      background-color: #EFE7E2;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+    .progress-inner {
+      height: 100%;
+      width: 100%;
+      background-color: #7A5447;
+      transition: width 1s linear;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center h-screen">
+  <div class="w-full max-w-xl bg-japandi bg-opacity-50 p-6 rounded-2xl shadow-none">
+    <div class="flex justify-center gap-4 mb-4 text-xs font-medium">
+      <button id="focus" class="mode-btn px-5 py-2 rounded-full focus:outline-none" data-active="true">Focus</button>
+      <button id="short" class="mode-btn px-5 py-2 rounded-full focus:outline-none">Short Break</button>
+      <button id="long" class="mode-btn px-5 py-2 rounded-full focus:outline-none">Long Break</button>
+    </div>
+    <div class="text-center relative mb-4">
+      <span id="timer" class="text-japandi">25:00</span>
+    </div>
+    <div class="progress-bar mb-6">
+      <div class="progress-inner"></div>
+    </div>
+    <div class="flex justify-center gap-6">
+      <button id="start" class="control-btn p-3 rounded-full bg-japandi text-japandi">⏵</button>
+      <button id="pause" class="control-btn p-3 rounded-full bg-japandi text-japandi">⏸</button>
+      <button id="reset" class="control-btn p-3 rounded-full bg-japandi text-japandi">⟲</button>
+    </div>
+  </div>
+  <script>
+    const timerDisplay = document.getElementById('timer');
+    const progressInner = document.querySelector('.progress-inner');
+    const modes = { focus: 25, short: 5, long: 15 };
+    let currentMode = 'focus';
+    let duration = modes[currentMode] * 60;
+    let timer;
+    let isRunning = false;
+    function updateTimerDisplay() {
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      progressInner.style.width = `${(duration / (modes[currentMode] * 60)) * 100}%`;
+    }
+    function updateModeHighlight() {
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.dataset.active = (btn.id === currentMode).toString();
+      });
+    }
+    function countdown() {
+      if (duration > 0) {
+        duration--;
+        updateTimerDisplay();
+      } else {
+        clearInterval(timer);
+        isRunning = false;
+      }
+    }
+    document.getElementById('start').onclick = () => {
+      if (!isRunning) {
+        timer = setInterval(countdown, 1000);
+        isRunning = true;
+      }
+    };
+    document.getElementById('pause').onclick = () => {
+      clearInterval(timer);
+      isRunning = false;
+    };
+    document.getElementById('reset').onclick = () => {
+      clearInterval(timer);
+      duration = modes[currentMode] * 60;
+      updateTimerDisplay();
+      isRunning = false;
+    };
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.onclick = () => {
+        currentMode = btn.id;
+        duration = modes[currentMode] * 60;
+        updateTimerDisplay();
+        updateModeHighlight();
+        clearInterval(timer);
+        isRunning = false;
+      };
+    });
+    updateTimerDisplay();
+    updateModeHighlight();
+  </script>
+</body>
+</html>
